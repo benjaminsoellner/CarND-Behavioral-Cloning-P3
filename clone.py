@@ -44,8 +44,12 @@ def generator(samples, batch_size=32):
 samples = []
 with open('data/driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
+    skipline = True
     for line in reader:
-        samples.append(line)
+        if skipline == True:
+            skipline = False
+        else:
+            samples.append(line)
 
 from sklearn.model_selection import train_test_split
 train_samples, validation_samples = train_test_split(samples, test_size=0.2)
