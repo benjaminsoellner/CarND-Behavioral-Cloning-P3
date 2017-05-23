@@ -24,7 +24,7 @@ def generator(samples, batch_size=32):
             for batch_sample in batch_samples:
                 for source_path_column, measurement_correction in zip([0, 1, 2], [1.0, -0.2, 0.2]):
                     source_path = batch_sample[source_path_column]
-                    filename = source_path.split("\\")[-1]
+                    filename = source_path.split("\/")[-1]
                     current_path = 'data/IMG/' + filename
                     image = cv2.imread(current_path)
                     images.append(image)
