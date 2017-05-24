@@ -66,42 +66,44 @@ model = Sequential()
 model.add(Lambda(lambda x: x/255.0-0.5, input_shape=(160,320,3)))
 model.add(Cropping2D(cropping=((70,25), (0,0))))
 
-# let model pick best channel from linear combination RGB
-model.add(Convolution2D(1,1,1,activation="relu"))
-# NVidia pipeline
-model.add(Convolution2D(24,5,5,subsample=(2,2),activation="relu"))
-model.add(Convolution2D(36,5,5,subsample=(2,2),activation="relu"))
-model.add(Convolution2D(48,5,5,subsample=(2,2),activation="relu"))
-model.add(Convolution2D(64,3,3,activation="relu"))
-model.add(Convolution2D(64,3,3,activation="relu"))
+# # let model pick best channel from linear combination RGB
+# model.add(Convolution2D(1,1,1,activation="relu"))
+
+# # NVidia pipeline
+# model.add(Convolution2D(24,5,5,subsample=(2,2),activation="relu"))
+# model.add(Convolution2D(36,5,5,subsample=(2,2),activation="relu"))
+# model.add(Convolution2D(48,5,5,subsample=(2,2),activation="relu"))
+# model.add(Convolution2D(64,3,3,activation="relu"))
+# model.add(Convolution2D(64,3,3,activation="relu"))
+# model.add(Flatten())
+# model.add(Dense(100))
+# model.add(Dense(50))
+# model.add(Dense(10))
+# model.add(Dense(1))
+# model.compile(loss='mse', optimizer='adam')
+# history = model.fit_generator(train_generator, validation_data=validation_generator,
+#                     samples_per_epoch=len(train_samples)*AUG_FACTOR, nb_val_samples=len(validation_samples)*AUG_FACTOR,
+#                     nb_epoch=5)
+
+
+# Comma.ai model
+model.add(Convolution2D(16,8,8,subsample=(4,4),border_mode="same",activation="elu"))
+model.add(Convolution2D(32,5,5,subsample=(2,2),border_mode="same",activation="elu"))
+model.add(Convolution2D(64,5,5,subsample=(2,2),border_mode="same",activation="elu"))
 model.add(Flatten())
-model.add(Dense(100))
-model.add(Dense(50))
-model.add(Dense(10))
+model.add(Dropout(.2))
+model.add(ELU())
+model.add(Dense(512))
+model.add(Dropout(.5))
+model.add(ELU())
 model.add(Dense(1))
 model.compile(loss='mse', optimizer='adam')
 history = model.fit_generator(train_generator, validation_data=validation_generator,
                     samples_per_epoch=len(train_samples)*AUG_FACTOR, nb_val_samples=len(validation_samples)*AUG_FACTOR,
                     nb_epoch=5)
 
-
-# # Comma.ai model
-# model.add(Convolution2D(16,8,8,subsample=(4,4),border_mode="same",activation="elu"))
-# model.add(Convolution2D(32,5,5,subsample=(2,2),border_mode="same",activation="elu"))
-# model.add(Convolution2D(64,5,5,subsample=(2,2),border_mode="same",activation="elu"))
-# model.add(Flatten())
-# model.add(Dropout(.2))
-# model.add(ELU())
-# model.add(Dense(512))
-# model.add(Dropout(.5))
-# model.add(ELU())
-# model.add(Dense(1))
-# history = model.fit_generator(train_generator, validation_data=validation_generator,
-#                     samples_per_epoch=len(train_samples)*AUG_FACTOR, nb_val_samples=len(validation_samples)*AUG_FACTOR,
-#                     nb_epoch=5)
-
-model.save(H5_FILE.format("0"))
+model.save(H5_FILE.format("1"))
 history_dict = {'loss': history.history['loss'], 'val_loss': history.history['val_loss']}
-pd.DataFrame(data=history_dict).to_csv(CSV_FILE.format("0"), index_label='epoch')
+pd.DataFrame(data=history_dict).to_csv(CSV_FILE.format("1"), index_label='epoch')
 
 # del K._SESSION
