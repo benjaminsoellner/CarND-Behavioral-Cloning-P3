@@ -26,7 +26,6 @@ def generator(samples, batch_size=128):
                     current_path = 'data/IMG/' + filename
                     image = cv2.imread(current_path)
                     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                    image = cv2.resize(image, (0,0), fx=0.5, fy=0.5)
                     images.append(image)
                     measurement = float(batch_sample[3])
                     measurements.append(measurement + measurement_correction)
@@ -64,13 +63,13 @@ from keras.layers.convolutional import Convolution2D
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout, ELU
 
 model = Sequential()
-model.add(Lambda(lambda x: x/255.0-0.5, input_shape=(80,160,3)))
-model.add(Cropping2D(cropping=((35,12), (0,0))))
+model.add(Lambda(lambda x: x/255.0-0.5, input_shape=(160,320,3)))
+model.add(Cropping2D(cropping=((70,25), (0,0))))
 
 # let model pick best channel from linear combination RGB
 model.add(Convolution2D(1,1,1,activation="relu"))
 # NVidia pipeline
-model.add(Convolution2D(24,5,5,activation="relu"))
+model.add(Convolution2D(24,5,5,subsample=(2,2),activation="relu"))
 model.add(Convolution2D(36,5,5,subsample=(2,2),activation="relu"))
 model.add(Convolution2D(48,5,5,subsample=(2,2),activation="relu"))
 model.add(Convolution2D(64,3,3,activation="relu"))
