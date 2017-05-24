@@ -8,7 +8,7 @@ from keras import backend as K
 
 H5_FILE = "model_{0}.h5"
 CSV_FILE = "model_{0}.csv"
-AUG_FACTOR = 3
+AUG_FACTOR = 6
 
 
 def generator(samples, batch_size=128):
@@ -20,7 +20,7 @@ def generator(samples, batch_size=128):
             images = []
             measurements = []
             for batch_sample in batch_samples:
-                for source_path_column, measurement_correction in zip([0, 1, 2], [0.0, -0.1, 0.1]):
+                for source_path_column, measurement_correction in zip([0, 1, 2], [0.0, 0.1, -0.1]):
                     source_path = batch_sample[source_path_column]
                     filename = source_path.split("/")[-1]
                     current_path = 'data/IMG/' + filename
@@ -31,12 +31,10 @@ def generator(samples, batch_size=128):
                     measurements.append(measurement + measurement_correction)
             augmented_images, augmented_measurements = [], []
             for image, measurement in zip(images, measurements):
-                if np.random.uniform()>0.5:
-                    augmented_images.append(image)
-                    augmented_measurements.append(measurement)
-                else:
-                    augmented_images.append(cv2.flip(image, 1))
-                    augmented_measurements.append(measurement*-1.0)
+                augmented_images.append(image)
+                augmented_measurements.append(measurement)
+                augmented_images.append(cv2.flip(image, 1))
+                augmented_measurements.append(measurement*-1.0)
             X_train = np.array(augmented_images)
             y_train = np.array(augmented_measurements)
             yield sklearn.utils.shuffle(X_train, y_train)
@@ -102,8 +100,8 @@ history = model.fit_generator(train_generator, validation_data=validation_genera
                     samples_per_epoch=len(train_samples)*AUG_FACTOR, nb_val_samples=len(validation_samples)*AUG_FACTOR,
                     nb_epoch=5)
 
-model.save(H5_FILE.format("1"))
+model.save(H5_FILE.format("commaai_flipped"))
 history_dict = {'loss': history.history['loss'], 'val_loss': history.history['val_loss']}
-pd.DataFrame(data=history_dict).to_csv(CSV_FILE.format("1"), index_label='epoch')
+pd.DataFrame(data=history_dict).to_csv(CSV_FILE.format("commaai_flipped"), index_label='epoch')
 
 # del K._SESSION
